@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>App个人信息保护自评估检查表</title>
+  <script src="https://cdn.tailwindcss.com"></script> 
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; }
+    .checkbox-group label { margin-right: 1rem; }
+    @media print {
+      .no-print { display: none; }
+      table { page-break-inside: auto; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-6">
+  <div class="max-w-7xl mx-auto bg-white rounded-lg shadow-md p-6">
+    <h1 class="text-3xl font-bold text-center mb-8">App个人信息保护自评估检查表</h1>
+    
+    <table id="checklist" class="w-full border-collapse">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="w-12 p-3 text-left no-print">#</th>
+          <th class="p-3 text-left">评估项</th>
+          <th class="p-3 text-left">评估点</th>
+          <th class="p-3 text-left">评估标准</th>
+          <th class="w-48 p-3 text-left no-print">是否符合</th>
+          <th class="w-64 p-3 text-left no-print">备注</th>
+        </tr>
+      </thead>
+      <tbody id="checklist-body" class="divide-y divide-gray-200"></tbody>
+    </table>
+
+    <div class="mt-8 flex space-x-4 no-print">
+      <button onclick="exportPDF()" class="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+        导出PDF
+      </button>
+      <button onclick="resetForm()" class="px-6 py-3 bg-gray-300 rounded hover:bg-gray-400 transition">
+        重置表单
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // 完整评估数据（32项）
+    const checklistData = [
+      {
+        id: 1,
+        评估项: "隐私政策文本",
+        评估点: "是否有隐私政策",
+        评估标准: "在App界面中能够找到隐私政策，包括通过弹窗、文本链接、常见问题（FAQs）等形式。"
+      },
+      {
+        id: 2,
+        评估项: "隐私政策文本",
+        评估点: "隐私政策是否单独成文",
+        评估标准: "隐私政策以单独文件形式存在，非用户协议等文件的一部分"
+      },
+      {
+        id: 3,
+        评估项: "隐私政策文本",
+        评估点: "隐私政策是否易于访问",
+        评估标准: "进入App主功能界面后，通过4次以内的点击能够访问到隐私政策，且链接位置突出、无遮挡"
+      },
+      {
+        id: 4,
+        评估项: "隐私政策文本",
+        评估点: "隐私政策是否易于阅读",
+        评估标准: "文字显示方式（字号、颜色、行间距等）不会造成阅读困难"
+      },
+      {
+        id: 5,
+        评估项: "隐私政策文本",
+        评估点: "是否明示收集个人信息的业务功能",
+        评估标准: "逐项列举业务功能（如地图导航、网络支付等），不使用'等、例如'字样"
+      },
+      {
+        id: 6,
+        评估项: "隐私政策文本",
+        评估点: "业务功能与个人信息类型是否一一对应",
+        评估标准: "每个业务功能单独说明收集的个人信息类型"
+      },
+      {
+        id: 7,
+        评估项: "隐私政策文本",
+        评估点: "是否明示各项业务功能收集的个人信息类型",
+        评估标准: "逐项列举，不使用'等、例如'概括说明"
+      },
+      {
+        id: 8,
+        评估项: "隐私政策文本",
+        评估点: "是否显著标识个人敏感信息类型",
+        评估标准: "对敏感信息（身份证号、生物识别、行踪轨迹等）进行加粗/标星等标识"
+      },
+      {
+        id: 9,
+        评估项: "隐私政策文本",
+        评估点: "App运营者基本情况",
+        评估标准: "包含公司名称、注册地址、个人信息保护负责人联系方式"
+      },
+      {
+        id: 10,
+        评估项: "隐私政策文本",
+        评估点: "个人信息存储和超期处理方式",
+        评估标准: "明确存放地域（国内/国外）、存储期限及超期处理方式"
+      },
+      {
+        id: 11,
+        评估项: "隐私政策文本",
+        评估点: "个人信息使用规则",
+        评估标准: "用于用户画像、个性化展示时，说明应用场景和影响"
+      },
+      {
+        id: 12,
+        评估项: "隐私政策文本",
+        评估点: "个人信息出境情况",
+        评估标准: "出境信息类型逐项列出并显著标识"
+      },
+      {
+        id: 13,
+        评估项: "隐私政策文本",
+        评估点: "个人信息安全保护措施",
+        评估标准: "说明数据加密、访问控制、安全审计等措施"
+      },
+      {
+        id: 14,
+        评估项: "隐私政策文本",
+        评估点: "对外共享/转让/披露规则",
+        评估标准: "明确目的、信息类型、接收方身份"
+      },
+      {
+        id: 15,
+        评估项: "隐私政策文本",
+        评估点: "用户权利保障机制",
+        评估标准: "提供查询、更正、删除个人信息及注销账户的方法说明"
+      },
+      {
+        id: 16,
+        评估项: "隐私政策文本",
+        评估点: "用户申诉渠道和反馈机制",
+        评估标准: "至少提供邮件、电话、在线客服等一种投诉渠道"
+      },
+      {
+        id: 17,
+        评估项: "隐私政策文本",
+        评估点: "隐私政策时效",
+        评估标准: "明确发布、生效或更新日期"
+      },
+      {
+        id: 18,
+        评估项: "隐私政策文本",
+        评估点: "隐私政策更新",
+        评估标准: "业务变更时及时修订并通过推送通知用户"
+      },
+      {
+        id: 19,
+        评估项: "隐私政策文本",
+        评估点: "是否存在不合理免责条款",
+        评估标准: "无免除自身责任、加重用户义务、排除用户主要权利的条款"
+      },
+      {
+        id: 20,
+        评估项: "App收集使用行为",
+        评估点: "是否明示收集目的、方式、范围",
+        评估标准: "安装/注册时提醒阅读隐私政策；开启权限时说明目的；收集敏感信息时弹窗提示"
+      },
+      {
+        id: 21,
+        评估项: "App收集使用行为",
+        评估点: "使用Cookie技术是否明示",
+        评估标准: "明示收集目的、类型（如脚本、SDK等）"
+      },
+      {
+        id: 22,
+        评估项: "App收集使用行为",
+        评估点: "嵌入第三方插件是否明示",
+        评估标准: "通过弹窗等告知用户信息传输至第三方"
+      },
+      {
+        id: 23,
+        评估项: "App收集使用行为",
+        评估点: "是否经用户自主同意收集信息",
+        评估标准: "提供主动选择同意选项，不同意仅影响相关功能"
+      },
+      {
+        id: 24,
+        评估项: "App收集使用行为",
+        评估点: "是否存在强制捆绑授权",
+        评估标准: "无打包多项功能要求用户一揽子接受"
+      },
+      {
+        id: 25,
+        评估项: "App收集使用行为",
+        评估点: "实际收集是否超范围",
+        评估标准: "实际收集信息类型与隐私政策一致"
+      },
+      {
+        id: 26,
+        评估项: "App收集使用行为",
+        评估点: "收集非必要信息是否经用户同意",
+        评估标准: "超出必要信息范围时明示目的并获用户授权"
+      },
+      {
+        id: 27,
+        评估项: "App收集使用行为",
+        评估点: "是否收集无关个人信息",
+        评估标准: "无收集与业务功能无关的信息"
+      },
+      {
+        id: 28,
+        评估项: "App收集使用行为",
+        评估点: "用户拒绝后是否继续索要权限",
+        评估标准: "用户拒绝后不再重复询问相关权限"
+      },
+      {
+        id: 29,
+        评估项: "App收集使用行为",
+        评估点: "App更新是否更改权限设置",
+        评估标准: "更新后不修改原有系统权限设置"
+      },
+      {
+        id: 30,
+        评估项: "用户权利保障",
+        评估点: "是否支持注销账号",
+        评估标准: "提供注销途径（在线功能、客服电话），注销后删除或匿名化信息"
+      },
+      {
+        id: 31,
+        评估项: "用户权利保障",
+        评估点: "是否支持查询、更正、删除信息",
+        评估标准: "提供相应操作途径"
+      },
+      {
+        id: 32,
+        评估项: "用户权利保障",
+        评估点: "是否及时反馈用户申诉",
+        评估标准: "原则上15日内回复处理结果"
+      }
+    ];
+
+    // 渲染表格
+    const tbody = document.getElementById('checklist-body');
+    checklistData.forEach(item => {
+      const row = document.createElement('tr');
+      row.className = "hover:bg-gray-50 transition";
+      row.innerHTML = `
+        <td class="p-3 no-print">${item.id}</td>
+        <td class="p-3">${item.评估项}</td>
+        <td class="p-3">${item.评估点}</td>
+        <td class="p-3">${item.评估标准}</td>
+        <td class="p-3 no-print">
+          <div class="checkbox-group flex space-x-4">
+            <label class="flex items-center">
+              <input type="radio" name="status-${item.id}" value="是" class="mr-1">
+              <span>是</span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="status-${item.id}" value="否" class="mr-1">
+              <span>否</span>
+            </label>
+          </div>
+        </td>
+        <td class="p-3 no-print">
+          <input type="text" class="w-full p-2 border rounded" placeholder="备注..." />
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    // 导出PDF功能
+    function exportPDF() {
+      window.print();
+    }
+
+    // 重置表单功能
+    function resetForm() {
+      document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+      document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
+    }
+  </script>
+</body>
+</html>
