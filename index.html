@@ -1,1 +1,183 @@
-TEST
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang-zh="WgpSec Tools - 在线安全工具集" data-lang-en="WgpSec Tools - Online Security Toolkit">WgpSec Tools - 在线安全工具集</title>
+    <!-- 引入 Tailwind CSS 以实现现代化设计 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts 的 Inter 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 自定义样式 */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* 为卡片添加更平滑的过渡效果 */
+        .tool-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .tool-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        /* 定义入场动画 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 应用动画的工具类 */
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0; /* 初始状态为透明 */
+        }
+        
+        /* 语言切换按钮样式 */
+        .lang-switcher button.active {
+            background-color: #3b82f6; /* blue-600 */
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col">
+    
+    <!-- 语言切换器 -->
+    <div class="absolute top-4 right-4 z-10">
+        <div class="lang-switcher flex items-center bg-gray-200 dark:bg-gray-700 rounded-full p-1 text-sm font-medium">
+            <button id="lang-zh" class="px-3 py-1 rounded-full transition-colors">中文</button>
+            <button id="lang-en" class="px-3 py-1 rounded-full transition-colors">EN</button>
+        </div>
+    </div>
+
+    <!-- 主内容区域 -->
+    <main class="flex-grow flex items-center justify-center p-4 md:p-8">
+        <div class="w-full max-w-4xl mx-auto text-center">
+            
+            <!-- Logo 和标题区域 -->
+            <div class="mb-12">
+                <!-- Logo 和标题容器 -->
+                <div class="flex justify-center items-center gap-4 mb-4 animate-fade-in-up" style="animation-delay: 100ms;">
+                    <!-- 使用官方 Logo 并调整尺寸 -->
+                    <img src="https://www.wgpsec.org/_nuxt/img/logo_badge_white.5823df1.png" alt="WgpSec Logo" class="h-14 w-auto object-contain" onerror="this.style.display='none'; this.onerror=null;">
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white tracking-tight" data-lang-zh="在线工具集" data-lang-en="Online Toolkit">在线工具集</h1>
+                </div>
+                <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 animate-fade-in-up" style="animation-delay: 250ms;" data-lang-zh="一个由 WgpSec 狼组安全团队出品的简单、易用的在线安全工具集" data-lang-en="A simple and easy-to-use online security toolkit by WgpSec Team">
+                    一个由 WgpSec 狼组安全团队出品的简单、易用的在线安全工具集
+                </p>
+            </div>
+
+            <!-- 工具卡片网格 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- 工具卡片 1: APP隐私政策检查 -->
+                <a href="app_privacy_check.html" class="tool-card block bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 text-left animate-fade-in-up" style="animation-delay: 400ms;">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white" data-lang-zh="APP隐私政策检查" data-lang-en="APP Privacy Check">APP隐私政策检查</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6" data-lang-zh="根据合规要求，快速检查移动应用的隐私政策是否存在风险点。" data-lang-en="Quickly check mobile app privacy policies for compliance risks.">根据合规要求，快速检查移动应用的隐私政策是否存在风险点。</p>
+                    <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold">
+                        <span data-lang-zh="立即使用" data-lang-en="Use Now">立即使用</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <!-- 工具卡片 2: 渗透测试检查项 -->
+                <a href="checklist.html" class="tool-card block bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 text-left animate-fade-in-up" style="animation-delay: 550ms;">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white" data-lang-zh="渗透测试检查项" data-lang-en="Pentest Checklist">渗透测试检查项</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6" data-lang-zh="提供一份全面的渗透测试清单，帮助规范测试流程，避免遗漏。" data-lang-en="A comprehensive checklist to standardize testing procedures.">提供一份全面的渗透测试清单，帮助规范测试流程，避免遗漏。</p>
+                    <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold">
+                        <span data-lang-zh="查看清单" data-lang-en="View Checklist">查看清单</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="text-center p-6 text-gray-500 dark:text-gray-400 animate-fade-in-up" style="animation-delay: 700ms;">
+        <div class="mb-2">
+            <a href="https://github.com/wgpsec/tools" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 hover:text-blue-500 transition-colors">
+                <!-- GitHub SVG Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <span data-lang-zh="GitHub 开源地址" data-lang-en="GitHub Repository">GitHub 开源地址</span>
+            </a>
+        </div>
+        <p>Copyright &copy; 2025 <a href="https://www.wgpsec.org" target="_blank" rel="noopener noreferrer" class="hover:text-blue-500 transition-colors" data-lang-zh="WgpSec 狼组安全团队" data-lang-en="WgpSec Team">WgpSec 狼组安全团队</a>. All Rights Reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const langZhBtn = document.getElementById('lang-zh');
+            const langEnBtn = document.getElementById('lang-en');
+            const translatableElements = document.querySelectorAll('[data-lang-zh]');
+
+            const switchLanguage = (lang) => {
+                // **FIX:** 修正了获取 data attribute key 的方式，确保大小写正确
+                const dataKey = lang === 'zh' ? 'langZh' : 'langEn';
+
+                // 更新所有元素的文本
+                translatableElements.forEach(el => {
+                    // 从 dataset 中获取正确的翻译文本
+                    const newText = el.dataset[dataKey];
+                    // 只有在找到文本时才更新，防止内容被清空
+                    if (newText !== undefined) {
+                        el.textContent = newText;
+                    }
+                });
+                
+                // 更新页面 lang 属性
+                document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+
+                // 更新按钮的激活状态
+                if (lang === 'zh') {
+                    langZhBtn.classList.add('active');
+                    langEnBtn.classList.remove('active');
+                } else {
+                    langEnBtn.classList.add('active');
+                    langZhBtn.classList.remove('active');
+                }
+
+                // 将用户的选择保存到 localStorage
+                localStorage.setItem('preferredLanguage', lang);
+            };
+
+            // 为按钮添加点击事件
+            langZhBtn.addEventListener('click', () => switchLanguage('zh'));
+            langEnBtn.addEventListener('click', () => switchLanguage('en'));
+
+            // 初始化页面语言
+            // 1. 检查 localStorage 中是否有保存的偏好
+            // 2. 如果没有，则检查浏览器设置
+            // 3. 默认为中文
+            const preferredLanguage = localStorage.getItem('preferredLanguage') || (navigator.language.startsWith('en') ? 'en' : 'zh');
+            switchLanguage(preferredLanguage);
+        });
+    </script>
+  <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?524318b5f19a04d18bc7c39ec1d38074";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+</body>
+</html>
