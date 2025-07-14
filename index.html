@@ -10,6 +10,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // 在加载 head 时立即应用主题，避免页面闪烁
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <style>
         /* 自定义样式 */
         body {
@@ -52,8 +60,14 @@
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-200 min-h-screen flex flex-col">
     
-    <!-- 语言切换器 -->
-    <div class="absolute top-4 right-4 z-10">
+    <!-- 右上角切换器容器 -->
+    <div class="absolute top-4 right-4 z-10 flex items-center gap-3">
+        <!-- 主题切换器 -->
+        <button id="theme-toggle" type="button" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+            <svg id="theme-toggle-dark-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+        </button>
+        <!-- 语言切换器 -->
         <div class="lang-switcher flex items-center bg-gray-200 dark:bg-gray-700 rounded-full p-1 text-sm font-medium">
             <button id="lang-zh" class="px-3 py-1 rounded-full transition-colors">中文</button>
             <button id="lang-en" class="px-3 py-1 rounded-full transition-colors">EN</button>
@@ -69,7 +83,7 @@
                 <!-- Logo 和标题容器 -->
                 <div class="flex justify-center items-center gap-4 mb-4 animate-fade-in-up" style="animation-delay: 100ms;">
                     <!-- 使用官方 Logo 并调整尺寸 -->
-                    <img src="https://www.wgpsec.org/_nuxt/img/logo_badge_white.5823df1.png" alt="WgpSec Logo" class="h-14 w-auto object-contain" onerror="this.style.display='none'; this.onerror=null;">
+                    <img id="wgpsec-logo" alt="WgpSec Logo" class="h-14 w-auto object-contain" onerror="this.style.display='none'; this.onerror=null;">
                     <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white tracking-tight" data-lang-zh="在线工具集" data-lang-en="Online Toolkit">在线工具集</h1>
                 </div>
                 <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 animate-fade-in-up" style="animation-delay: 250ms;" data-lang-zh="一个由 WgpSec 狼组安全团队出品的简单、易用的在线安全工具集" data-lang-en="A simple and easy-to-use online security toolkit by WgpSec Team">
@@ -122,28 +136,20 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- 语言切换逻辑 ---
             const langZhBtn = document.getElementById('lang-zh');
             const langEnBtn = document.getElementById('lang-en');
             const translatableElements = document.querySelectorAll('[data-lang-zh]');
 
             const switchLanguage = (lang) => {
-                // **FIX:** 修正了获取 data attribute key 的方式，确保大小写正确
                 const dataKey = lang === 'zh' ? 'langZh' : 'langEn';
-
-                // 更新所有元素的文本
                 translatableElements.forEach(el => {
-                    // 从 dataset 中获取正确的翻译文本
                     const newText = el.dataset[dataKey];
-                    // 只有在找到文本时才更新，防止内容被清空
                     if (newText !== undefined) {
                         el.textContent = newText;
                     }
                 });
-                
-                // 更新页面 lang 属性
                 document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
-
-                // 更新按钮的激活状态
                 if (lang === 'zh') {
                     langZhBtn.classList.add('active');
                     langEnBtn.classList.remove('active');
@@ -151,24 +157,52 @@
                     langEnBtn.classList.add('active');
                     langZhBtn.classList.remove('active');
                 }
-
-                // 将用户的选择保存到 localStorage
                 localStorage.setItem('preferredLanguage', lang);
             };
 
-            // 为按钮添加点击事件
             langZhBtn.addEventListener('click', () => switchLanguage('zh'));
             langEnBtn.addEventListener('click', () => switchLanguage('en'));
 
-            // 初始化页面语言
-            // 1. 检查 localStorage 中是否有保存的偏好
-            // 2. 如果没有，则检查浏览器设置
-            // 3. 默认为中文
             const preferredLanguage = localStorage.getItem('preferredLanguage') || (navigator.language.startsWith('en') ? 'en' : 'zh');
             switchLanguage(preferredLanguage);
+
+            // --- 主题切换逻辑 ---
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+            const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+            const logo = document.getElementById('wgpsec-logo');
+
+            const lightLogoUrl = 'https://www.wgpsec.org/_nuxt/img/logo_badge.192d296.svg';
+            const darkLogoUrl = 'https://www.wgpsec.org/_nuxt/img/logo_badge_white.5823df1.png';
+
+            const setTheme = (isDark) => {
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    themeToggleLightIcon.classList.remove('hidden');
+                    themeToggleDarkIcon.classList.add('hidden');
+                    logo.src = darkLogoUrl;
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    themeToggleLightIcon.classList.add('hidden');
+                    themeToggleDarkIcon.classList.remove('hidden');
+                    logo.src = lightLogoUrl;
+                    localStorage.setItem('theme', 'light');
+                }
+            };
+            
+            // 初始化主题状态和图标
+            const initialThemeIsDark = document.documentElement.classList.contains('dark');
+            setTheme(initialThemeIsDark);
+
+            // 按钮点击事件
+            themeToggleBtn.addEventListener('click', () => {
+                const isCurrentlyDark = document.documentElement.classList.contains('dark');
+                setTheme(!isCurrentlyDark);
+            });
         });
     </script>
-  <script>
+    <script>
 var _hmt = _hmt || [];
 (function() {
   var hm = document.createElement("script");
