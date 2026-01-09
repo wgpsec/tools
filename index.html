@@ -2,11 +2,12 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+	<link rel="icon" type="image/x-icon" href="./img/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-lang-zh="WgpSec Tools - 在线安全工具集" data-lang-en="WgpSec Tools - Online Security Toolkit">WgpSec Tools - 在线安全工具集</title>
+    <title data-lang-zh="WgpSec Tools - 在线安全工具集" data-lang-en="WgpSec Tools - Online Security Toolkit">WgpSec Tools - 在线工具集</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="一个由WgpSec狼组安全团队出品的在线安全工具集，提供APP隐私政策检查、渗透测试检查项等实用工具。">
+    <meta name="description" content="一个由WgpSec狼组安全团队出品的在线工具集，提供APP隐私政策检查、渗透测试检查项等实用工具。">
     <meta name="keywords" content="WgpSec, 狼组安全团队, 安全工具, 在线工具, 渗透测试, APP隐私合规, 网络安全, checklist">
     
     <!-- 引入 Tailwind CSS 以实现现代化设计 -->
@@ -42,7 +43,7 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(10px);
             }
             to {
                 opacity: 1;
@@ -52,7 +53,7 @@
 
         /* 应用动画的工具类 */
         .animate-fade-in-up {
-            animation: fadeInUp 0.6s ease-out forwards;
+            animation: fadeInUp 0.4s ease-out forwards;
             opacity: 0; /* 初始状态为透明 */
         }
         
@@ -86,12 +87,12 @@
             <!-- Logo 和标题区域 -->
             <div class="mb-12">
                 <!-- Logo 和标题容器 -->
-                <div class="flex justify-center items-center gap-4 mb-4 animate-fade-in-up" style="animation-delay: 100ms;">
+                <div class="flex justify-center items-center gap-4 mb-4 animate-fade-in-up" style="animation-delay: 60ms;">
                     <!-- 使用官方 Logo 并调整尺寸 -->
                     <img id="wgpsec-logo" alt="WgpSec Logo" class="h-14 w-auto object-contain" onerror="this.style.display='none'; this.onerror=null;">
                     <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors duration-300" data-lang-zh="在线工具集" data-lang-en="Online Toolkit">在线工具集</h1>
                 </div>
-                <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 animate-fade-in-up transition-colors duration-300" style="animation-delay: 250ms;" data-lang-zh="一个由 WgpSec 狼组安全团队出品的简单、易用的在线安全工具集" data-lang-en="A simple and easy-to-use online security toolkit by WgpSec Team">
+                <p class="mt-4 text-lg text-gray-600 dark:text-gray-400 animate-fade-in-up transition-colors duration-300" style="animation-delay: 140ms;" data-lang-zh="一个由 WgpSec 狼组安全团队出品的简单、易用的在线安全工具集" data-lang-en="A simple and easy-to-use online security toolkit by WgpSec Team">
                     一个由 WgpSec 狼组安全团队出品的简单、易用的在线安全工具集
                 </p>
             </div>
@@ -100,7 +101,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 
                 <!-- 工具卡片 1: APP隐私政策检查 -->
-                <a href="app_privacy_check.html" class="tool-card block bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 text-left animate-fade-in-up" style="animation-delay: 400ms;">
+                <a href="app_privacy_check.html" class="tool-card block bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 text-left animate-fade-in-up" style="animation-delay: 180ms;">
                     <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white transition-colors duration-300" data-lang-zh="APP隐私政策检查" data-lang-en="APP Privacy Check">APP隐私政策检查</h2>
                     <p class="text-gray-600 dark:text-gray-400 mb-6 transition-colors duration-300" data-lang-zh="根据合规要求，快速检查移动应用的隐私政策是否存在风险点。" data-lang-en="Quickly check mobile app privacy policies for compliance risks.">根据合规要求，快速检查移动应用的隐私政策是否存在风险点。</p>
                     <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold transition-colors duration-300">
@@ -112,7 +113,7 @@
                 </a>
 
                 <!-- 工具卡片 2: 渗透测试检查项 -->
-                <a href="checklist.html" class="tool-card block bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 text-left animate-fade-in-up" style="animation-delay: 550ms;">
+                <a href="checklist.html" class="tool-card block bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 text-left animate-fade-in-up" style="animation-delay: 240ms;">
                     <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white transition-colors duration-300" data-lang-zh="渗透测试检查项" data-lang-en="Pentest Checklist">渗透测试检查项</h2>
                     <p class="text-gray-600 dark:text-gray-400 mb-6 transition-colors duration-300" data-lang-zh="提供一份全面的渗透测试清单，帮助规范测试流程，避免遗漏。" data-lang-en="A comprehensive checklist to standardize testing procedures.">提供一份全面的渗透测试清单，帮助规范测试流程，避免遗漏。</p>
                     <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold transition-colors duration-300">
@@ -124,9 +125,21 @@
                 </a>
 
                 <!-- 工具卡片 3: win+linux 杀软/常见可利用进程查询多合一 -->
-                <a href="tasklist.html" class="tool-card block bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 text-left animate-fade-in-up" style="animation-delay: 550ms;">
+                <a href="tasklist.html" class="tool-card block bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 text-left animate-fade-in-up" style="animation-delay: 240ms;">
                     <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white transition-colors duration-300" data-lang-zh="杀软/高危进程查询" data-lang-en="tasklist/ps -aux">杀软/高危进程查询</h2>
                     <p class="text-gray-600 dark:text-gray-400 mb-6 transition-colors duration-300" data-lang-zh="win+linux 杀软/常见可利用进程查询多合一" data-lang-en="Windows/Linux AV and exploitable process lookup (all-in-one)">win+linux 杀软/常见可利用进程查询多合一</p>
+                    <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold transition-colors duration-300">
+                        <span data-lang-zh="立即使用" data-lang-en="Use Now">立即使用</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                </a>
+
+                <!-- 工具卡片 4: 大模型显存计算器 -->
+                <a href="LLM.html" class="tool-card block bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 text-left animate-fade-in-up" style="animation-delay: 300ms;">
+                    <h2 class="text-2xl font-bold mb-2 text-gray-900 dark:text-white transition-colors duration-300" data-lang-zh="大模型显存计算器" data-lang-en="VRAM Estimator">大模型显存计算器</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mb-6 transition-colors duration-300" data-lang-zh="根据参数量与量化位宽快速估算加载显存需求" data-lang-en="Estimate GPU VRAM from parameter count and quantization bits">根据参数量与量化位宽快速估算加载显存需求</p>
                     <div class="flex items-center text-blue-600 dark:text-blue-400 font-semibold transition-colors duration-300">
                         <span data-lang-zh="立即使用" data-lang-en="Use Now">立即使用</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 transition-transform group-hover:translate-x-1" viewBox="0 0 20 20" fill="currentColor">
@@ -139,7 +152,7 @@
     </main>
 
     <!-- 页脚 -->
-    <footer class="text-center p-6 text-gray-500 dark:text-gray-400 animate-fade-in-up transition-colors duration-300" style="animation-delay: 700ms;">
+    <footer class="text-center p-6 text-gray-500 dark:text-gray-400 animate-fade-in-up transition-colors duration-300" style="animation-delay: 300ms;">
         <div class="mb-2">
             <a href="https://github.com/wgpsec/tools" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 hover:text-blue-500 transition-colors">
                 <!-- GitHub SVG Icon -->

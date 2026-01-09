@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+	<link rel="icon" type="image/x-icon" href="./img/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>大模型显存计算器</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap');
+
+    :root {
+      --bg-1: #0a1718;
+      --bg-2: #0e2426;
+      --accent: #1ec6a3;
+      --accent-2: #f1a208;
+      --card: rgba(16, 35, 38, 0.9);
+      --text: #e8f1ef;
+      --muted: #90a4a6;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
+      --glow: 0 0 30px rgba(30, 198, 163, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Noto Sans SC', 'Space Grotesk', sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 20%, rgba(30, 198, 163, 0.08), transparent 35%),
+                  radial-gradient(circle at 80% 0%, rgba(241, 162, 8, 0.07), transparent 35%),
+                  linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px 80px;
+    }
+
+    .page {
+      width: min(1100px, 100%);
+      position: relative;
+    }
+
+    .glow-ring {
+      position: absolute;
+      inset: -80px;
+      background: radial-gradient(circle, rgba(30, 198, 163, 0.12), transparent 45%);
+      filter: blur(40px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 99px;
+      background: rgba(30, 198, 163, 0.12);
+      border: 1px solid rgba(30, 198, 163, 0.35);
+      color: var(--text);
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 4vw, 34px);
+      font-weight: 600;
+      letter-spacing: 0.4px;
+    }
+
+    p.lead {
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    /* Hide native number steppers for cleaner look */
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    select {
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    select option {
+      background: #0f2023;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    select option:checked, select option:hover {
+      background: rgba(30, 198, 163, 0.25);
+      color: #fff;
+    }
+
+    input:focus, select:focus {
+      outline: 1px solid rgba(30, 198, 163, 0.65);
+      box-shadow: var(--glow);
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .pill-option input {
+      width: auto;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .pill-option:hover {
+      border-color: rgba(30, 198, 163, 0.45);
+      background: rgba(30, 198, 163, 0.06);
+    }
+
+    .pill-option.active {
+      border-color: rgba(30, 198, 163, 0.9);
+      box-shadow: var(--glow);
+    }
+
+    button {
+      background: linear-gradient(135deg, #1ec6a3, #19a885);
+      border: none;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 35px rgba(30, 198, 163, 0.35);
+    }
+
+    .result {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .result-card {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .result-card h3 {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+
+    .value {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .help {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(30, 198, 163, 0.35);
+      background: rgba(30, 198, 163, 0.08);
+      color: var(--text);
+    }
+
+    .help h3 {
+      margin-bottom: 8px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .help ul {
+      margin-left: 18px;
+      margin-top: 6px;
+      line-height: 1.55;
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .help ul li strong {
+      color: var(--accent);
+    }
+
+    .formula {
+      font-family: 'Space Grotesk', monospace;
+      color: var(--accent-2);
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 24px 16px 60px; }
+      .row { flex-direction: column; align-items: stretch; }
+      header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="glow-ring" aria-hidden="true"></div>
+    <div class="card">
+      <header>
+        <div>
+          <div class="badge">显存估算 · 量化助手</div>
+          <h1>大模型显存计算器</h1>
+          <p class="lead">根据参数量与量化位宽快速估算 GPU 占用，包含 20% 额外开销。</p>
+        </div>
+      </header>
+
+      <div class="grid" style="margin-bottom: 12px;">
+        <div>
+          <label for="params">参数数量 P</label>
+          <input id="params" type="number" inputmode="decimal" min="0" step="0.01" placeholder="例如 7 或 70" />
+          <div class="row" style="margin-top: 10px;">
+            <label class="pill-option active"><input type="radio" name="unit" value="billion" checked />十亿（B，10^9）</label>
+            <label class="pill-option"><input type="radio" name="unit" value="absolute" />直接输入个数</label>
+          </div>
+        </div>
+
+        <div>
+          <label for="quant">量化位宽 Q（bit）</label>
+          <select id="quant">
+            <option value="4">4 bit</option>
+            <option value="8">8 bit</option>
+            <option value="16">16 bit</option>
+            <option value="32">32 bit（全精度）</option>
+            <option value="custom">自定义</option>
+          </select>
+          <input id="customBits" type="number" min="1" max="64" step="1" placeholder="自定义位宽，例如 6" style="margin-top: 10px; display: none;" />
+        </div>
+
+        <div>
+          <label>公式（已含 20% 冗余）</label>
+          <div class="formula">M = (P × 4B) / (32 / Q) × 1.2</div>
+          <p class="note">M 以 GB 表示；P 为参数数量；Q 为加载位宽（bit）；4B 表示每个参数 4 字节。</p>
+        </div>
+      </div>
+
+      <button id="calc" type="button">立即计算</button>
+
+      <div class="result" aria-live="polite" aria-atomic="true">
+        <div class="result-card">
+          <h3>显存占用（GB，十进制）</h3>
+          <div class="value" id="gb">--</div>
+          <div class="sub" id="gbSub">等待输入</div>
+        </div>
+        <div class="result-card">
+          <h3>显存占用（GiB，1024 进制）</h3>
+          <div class="value" id="gib">--</div>
+          <div class="sub" id="gibSub">等待输入</div>
+        </div>
+        <div class="result-card">
+          <h3>所需字节（含 20% 冗余）</h3>
+          <div class="value" id="bytes">--</div>
+          <div class="sub" id="bytesSub">等待输入</div>
+        </div>
+      </div>
+
+      <p class="note" id="note">请填写参数数量与位宽。</p>
+
+      <div class="help">
+        <h3>如何确定量化位宽 Q（bit）</h3>
+        <ul>
+          <li><strong>看文件名</strong>：GGUF/GGML 常见后缀 q4_0/q4_K=4bit，q5_1=5bit，q6_K=6bit，q8_0=8bit；f16=16bit，f32=32bit。</li>
+          <li><strong>量化方案映射</strong>：GPTQ-4bit/8bit → 4/8；AWQ W4A16 → 权重 4bit；EXL2 标注 4.0bpw/5.0bpw → 4/5；“w16”/“f16” → 16。</li>
+          <li><strong>在 LM Studio/下载目录查看</strong>：打开模型文件所在目录，直接看文件名后缀即可确认 Q。</li>
+          <li><strong>看模型页说明</strong>：Hugging Face/GitHub 发布页 README 通常会写明量化格式（如 Q4_K_M、GPTQ-4bit）。</li>
+          <li><strong>选用哪个文件就填哪个位宽</strong>：加载列表里选择的量化文件，对应位宽就是 Q。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const paramsInput = document.getElementById('params');
+    const unitRadios = document.querySelectorAll('input[name="unit"]');
+    const quantSelect = document.getElementById('quant');
+    const customBitsInput = document.getElementById('customBits');
+    const calcBtn = document.getElementById('calc');
+
+    const gbEl = document.getElementById('gb');
+    const gibEl = document.getElementById('gib');
+    const bytesEl = document.getElementById('bytes');
+    const gbSub = document.getElementById('gbSub');
+    const gibSub = document.getElementById('gibSub');
+    const bytesSub = document.getElementById('bytesSub');
+    const noteEl = document.getElementById('note');
+
+    function getParamCount() {
+      const raw = parseFloat(paramsInput.value);
+      if (Number.isNaN(raw) || raw < 0) return null;
+      const unit = Array.from(unitRadios).find(r => r.checked)?.value || 'billion';
+      return unit === 'billion' ? raw * 1e9 : raw;
+    }
+
+    function getBits() {
+      const selected = quantSelect.value;
+      if (selected === 'custom') {
+        const custom = parseFloat(customBitsInput.value);
+        if (Number.isNaN(custom) || custom <= 0) return null;
+        return custom;
+      }
+      return parseFloat(selected);
+    }
+
+    function formatNumber(num, fraction = 2) {
+      return num.toLocaleString('zh-CN', { maximumFractionDigits: fraction, minimumFractionDigits: fraction });
+    }
+
+    function setActivePill() {
+      const unit = Array.from(unitRadios).find(r => r.checked)?.value;
+      document.querySelectorAll('.pill-option').forEach(label => {
+        const input = label.querySelector('input');
+        label.classList.toggle('active', input.value === unit);
+      });
+    }
+
+    function toggleCustomBits() {
+      const show = quantSelect.value === 'custom';
+      customBitsInput.style.display = show ? 'block' : 'none';
+      if (show) customBitsInput.focus();
+    }
+
+    function calculate() {
+      const P = getParamCount();
+      const Q = getBits();
+
+      if (P === null) {
+        noteEl.textContent = '请输入有效的参数数量（可输入 7 表示 7B）。';
+        return;
+      }
+      if (Q === null) {
+        noteEl.textContent = '请选择或填写有效的位宽（bit）。';
+        return;
+      }
+
+      // 核心公式：M = (P * 4B) / (32 / Q) * 1.2
+      const bytes = (P * 4) / (32 / Q) * 1.2;
+      const gb = bytes / 1e9; // 十进制 GB
+      const gib = bytes / (1024 ** 3); // 二进制 GiB
+
+      gbEl.textContent = formatNumber(gb, 3);
+      gibEl.textContent = formatNumber(gib, 3);
+      bytesEl.textContent = bytes.toLocaleString('zh-CN');
+
+      gbSub.textContent = '十进制 GB（1 GB = 10^9 字节）';
+      gibSub.textContent = '二进制 GiB（1 GiB = 1024^3 字节）';
+      bytesSub.textContent = '包含公式中 20% 冗余的总字节数';
+
+      const unitLabel = Array.from(unitRadios).find(r => r.checked)?.value === 'billion' ? 'B（十亿）' : '个参数';
+      noteEl.textContent = `已按 P=${formatNumber(P, 0)}（${unitLabel}）、Q=${Q} bit 计算。`;
+    }
+
+    quantSelect.addEventListener('change', () => { toggleCustomBits(); calculate(); });
+    customBitsInput.addEventListener('input', calculate);
+    paramsInput.addEventListener('input', calculate);
+    unitRadios.forEach(r => r.addEventListener('change', () => { setActivePill(); calculate(); }));
+    calcBtn.addEventListener('click', calculate);
+
+    // 初始样式同步
+    setActivePill();
+  </script>
+</body>
+</html>

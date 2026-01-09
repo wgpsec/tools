@@ -1,61 +1,255 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hans">
 <head>
+	<meta charset="utf-8" />
 	<title>运行查询 v1.3.6</title>
 	<link rel="icon" type="image/x-icon" href="./img/favicon.ico" />
-	<meta charset="utf-8">
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap');
 
-    <style>
-        body {
-            font-family: 'Open Sans', sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-            justify-content: center;
-            align-items: center;
-        }
-        center {
-            text-align: center;
-        }
-        h3 {
-            color: #333;
-        }
-        textarea {
-            box-shadow: 0 0 7px rgba(0,0,0,0.1);
-            margin: 10px 3px;
-        }
-        input[type="submit"] {
-            background-color: #007BFF;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-    </style>
+		:root {
+			--bg-1: #0a1718;
+			--bg-2: #0e2426;
+			--accent: #1ec6a3;
+			--accent-2: #f1a208;
+			--card: rgba(16, 35, 38, 0.9);
+			--text: #e8f1ef;
+			--muted: #90a4a6;
+			--border: rgba(255, 255, 255, 0.08);
+			--shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
+		}
+
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			min-height: 100vh;
+			font-family: 'Noto Sans SC', 'Space Grotesk', sans-serif;
+			color: var(--text);
+			background: radial-gradient(circle at 20% 20%, rgba(30, 198, 163, 0.08), transparent 35%),
+									radial-gradient(circle at 80% 0%, rgba(241, 162, 8, 0.07), transparent 35%),
+									linear-gradient(135deg, var(--bg-1), var(--bg-2));
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 40px 20px 80px;
+		}
+
+		.page {
+			width: min(1700px, 100%);
+			position: relative;
+		}
+
+		.card {
+			position: relative;
+			background: var(--card);
+			border: 1px solid var(--border);
+			border-radius: 18px;
+			padding: 28px;
+			box-shadow: var(--shadow);
+			backdrop-filter: blur(10px);
+		}
+
+		header {
+			display: flex;
+			justify-content: space-between;
+			align-items: flex-start;
+			gap: 12px;
+			margin-bottom: 22px;
+		}
+
+		.title {
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		h1 {
+			font-size: clamp(26px, 4vw, 34px);
+			font-weight: 600;
+			letter-spacing: 0.4px;
+		}
+
+		.lead {
+			color: var(--muted);
+			line-height: 1.5;
+		}
+
+		.badge {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 8px 12px;
+			border-radius: 999px;
+			background: rgba(30, 198, 163, 0.12);
+			border: 1px solid rgba(30, 198, 163, 0.35);
+			font-weight: 600;
+			color: var(--text);
+			letter-spacing: 0.3px;
+		}
+
+		.grid {
+			display: grid;
+			grid-template-columns: minmax(320px, 0.9fr) minmax(520px, 1.1fr);
+			gap: 26px;
+			align-items: start;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 8px;
+			color: var(--muted);
+			font-size: 14px;
+		}
+
+		textarea, input, button {
+			width: 100%;
+			padding: 12px 14px;
+			border-radius: 12px;
+			border: 1px solid var(--border);
+			background: rgba(255, 255, 255, 0.04);
+			color: var(--text);
+			font-size: 15px;
+			line-height: 1.5;
+		}
+
+		textarea {
+			min-height: 180px;
+			resize: vertical;
+			box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+			font-family: 'Space Grotesk', 'Noto Sans SC', 'SFMono-Regular', monospace;
+			white-space: pre-wrap;
+			word-break: break-word;
+			overflow: auto;
+		}
+
+		/* Scrollbar styling for all scrollable areas */
+		textarea::-webkit-scrollbar {
+			width: 10px;
+			height: 10px;
+		}
+		textarea::-webkit-scrollbar-track {
+			background: rgba(255, 255, 255, 0.04);
+			border-radius: 10px;
+		}
+		textarea::-webkit-scrollbar-thumb {
+			background: linear-gradient(135deg, #1ec6a3, #19a885);
+			border-radius: 10px;
+			border: 2px solid rgba(16, 35, 38, 0.9);
+		}
+		textarea::-webkit-scrollbar-thumb:hover {
+			background: linear-gradient(135deg, #22d6b0, #1bb592);
+		}
+
+		#content {
+			min-height: 260px;
+		}
+
+		textarea:focus, input:focus, button:focus {
+			outline: 1px solid rgba(30, 198, 163, 0.65);
+			box-shadow: 0 0 0 4px rgba(30, 198, 163, 0.15);
+		}
+
+		button {
+			background: linear-gradient(135deg, #1ec6a3, #19a885);
+			border: none;
+			font-weight: 600;
+			letter-spacing: 0.3px;
+			cursor: pointer;
+			transition: transform 0.12s ease, box-shadow 0.2s ease;
+		}
+
+		button:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 12px 35px rgba(30, 198, 163, 0.35);
+		}
+
+		.results {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+			gap: 16px;
+			margin-top: 16px;
+		}
+
+		.result-card {
+			border: 1px solid var(--border);
+			background: rgba(255, 255, 255, 0.02);
+			border-radius: 14px;
+			padding: 14px;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.result-card h3 {
+			color: var(--muted);
+			font-size: 14px;
+			font-weight: 500;
+			letter-spacing: 0.2px;
+		}
+
+		.result-card textarea {
+			min-height: 200px;
+			background: rgba(255, 255, 255, 0.04);
+		}
+
+		.note {
+			color: var(--muted);
+			font-size: 13px;
+			margin-top: 12px;
+			line-height: 1.5;
+		}
+
+		@media (max-width: 640px) {
+			body { padding: 24px 16px 60px; }
+			header { flex-direction: column; align-items: flex-start; }
+			.card { padding: 22px; }
+		}
+	</style>
 </head>
 <body>
+	<div class="page">
+		<div class="card">
+			<header>
+				<div class="title">
+					<div class="badge">tasklist /svc · ps -aux 查询</div>
+					<h1>杀软 / 高危进程查询</h1>
+					<p class="lead">粘贴 Windows tasklist 或 Linux ps -aux 输出，快速匹配常见杀软与可利用进程。</p>
+				</div>
+			</header>
 
-<center>
-	<h3>tasklist /svc && ps -aux</h3>
-	<textarea style="border:0;border-radius:5px;background-color:rgba(241,241,241,.98);width: 50%;height: 341px;padding: 10px;resize: none;" placeholder="查询" id="content"></textarea>
-	<br>
-	<br>
-	<input type="submit" id="search" value="查询" onclick="getAVName();">
-	<br>
-	<br>
-	<div>
-		<h3>查询结果</h3>
-		<textarea style="border:0;border-radius:5px;background-color:rgba(241,241,241,.98);width: 30%;height: 241px;padding: 10px;resize: none;" placeholder="杀软结果" id="result1"></textarea>
-		<textarea style="border:0;border-radius:5px;background-color:rgba(241,241,241,.98);width: 30%;height: 241px;padding: 10px;resize: none;" placeholder="其他软件结果" id="result2"></textarea>
-		<textarea style="border:0;border-radius:5px;background-color:rgba(241,241,241,.98);width: 30%;height: 241px;padding: 10px;resize: none;" placeholder="linux进程结果" id="result3"></textarea>
+			<div class="grid">
+				<div>
+					<label for="content">粘贴进程列表</label>
+					<textarea id="content" placeholder="将 tasklist /svc 或 ps -aux 输出粘贴到这里"></textarea>
+					<div style="margin-top: 12px;">
+						<button id="search" type="button" onclick="getAVName();">立即查询</button>
+					</div>
+					<p class="note">提示：Windows 输出需包含 .exe 名称；Linux 输出会按命令包含关系匹配。</p>
+				</div>
+
+				<div>
+					<div class="results">
+						<div class="result-card">
+							<h3>杀软结果</h3>
+							<textarea id="result1" placeholder="匹配到的杀软进程会显示在这里" readonly></textarea>
+						</div>
+						<div class="result-card">
+							<h3>其他软件结果</h3>
+							<textarea id="result2" placeholder="匹配到的常见软件 / 高危进程" readonly></textarea>
+						</div>
+						<div class="result-card">
+							<h3>Linux 进程结果</h3>
+							<textarea id="result3" placeholder="匹配到的 Linux 杀软或可利用进程" readonly></textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
-
-</center>
 
 <script src="./js/avlist.js"></script>
 <script src="./js/linux.js"></script>
