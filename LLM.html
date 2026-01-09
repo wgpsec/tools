@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
 	<link rel="icon" type="image/x-icon" href="./img/favicon.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>大模型显存计算器</title>
+  <title>Large Model VRAM Estimator</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap');
 
@@ -291,38 +291,38 @@
     <div class="card">
       <header>
         <div>
-          <div class="badge">显存估算 · 量化助手</div>
-          <h1>大模型显存计算器</h1>
-          <p class="lead">根据参数量与量化位宽快速估算 GPU 占用，包含 20% 额外开销。</p>
+          <div id="badge-text" class="badge">显存估算 · 量化助手</div>
+          <h1 id="heading-text">大模型显存计算器</h1>
+          <p id="lead-text" class="lead">根据参数量与量化位宽快速估算 GPU 占用，包含 20% 额外开销。</p>
         </div>
       </header>
 
       <div class="grid" style="margin-bottom: 12px;">
         <div>
-          <label for="params">参数数量 P</label>
+          <label id="params-label" for="params">参数数量 P</label>
           <input id="params" type="number" inputmode="decimal" min="0" step="0.01" placeholder="例如 7 或 70" />
           <div class="row" style="margin-top: 10px;">
-            <label class="pill-option active"><input type="radio" name="unit" value="billion" checked />十亿（B，10^9）</label>
-            <label class="pill-option"><input type="radio" name="unit" value="absolute" />直接输入个数</label>
+            <label class="pill-option active"><input type="radio" name="unit" value="billion" checked /><span id="unit-billion">十亿（B，10^9）</span></label>
+            <label class="pill-option"><input type="radio" name="unit" value="absolute" /><span id="unit-absolute">直接输入个数</span></label>
           </div>
         </div>
 
         <div>
-          <label for="quant">量化位宽 Q（bit）</label>
+          <label id="quant-label" for="quant">量化位宽 Q（bit）</label>
           <select id="quant">
-            <option value="4">4 bit</option>
-            <option value="8">8 bit</option>
-            <option value="16">16 bit</option>
-            <option value="32">32 bit（全精度）</option>
-            <option value="custom">自定义</option>
+            <option id="opt-4" value="4">4 bit</option>
+            <option id="opt-8" value="8">8 bit</option>
+            <option id="opt-16" value="16">16 bit</option>
+            <option id="opt-32" value="32">32 bit（全精度）</option>
+            <option id="opt-custom" value="custom">自定义</option>
           </select>
           <input id="customBits" type="number" min="1" max="64" step="1" placeholder="自定义位宽，例如 6" style="margin-top: 10px; display: none;" />
         </div>
 
         <div>
-          <label>公式（已含 20% 冗余）</label>
-          <div class="formula">M = (P × 4B) / (32 / Q) × 1.2</div>
-          <p class="note">M 以 GB 表示；P 为参数数量；Q 为加载位宽（bit）；4B 表示每个参数 4 字节。</p>
+          <label id="formula-label">公式（已含 20% 冗余）</label>
+          <div id="formula-text" class="formula">M = (P × 4B) / (32 / Q) × 1.2</div>
+          <p id="formula-note" class="note">M 以 GB 表示；P 为参数数量；Q 为加载位宽（bit）；4B 表示每个参数 4 字节。</p>
         </div>
       </div>
 
@@ -330,17 +330,17 @@
 
       <div class="result" aria-live="polite" aria-atomic="true">
         <div class="result-card">
-          <h3>显存占用（GB，十进制）</h3>
+          <h3 id="title-gb">显存占用（GB，十进制）</h3>
           <div class="value" id="gb">--</div>
           <div class="sub" id="gbSub">等待输入</div>
         </div>
         <div class="result-card">
-          <h3>显存占用（GiB，1024 进制）</h3>
+          <h3 id="title-gib">显存占用（GiB，1024 进制）</h3>
           <div class="value" id="gib">--</div>
           <div class="sub" id="gibSub">等待输入</div>
         </div>
         <div class="result-card">
-          <h3>所需字节（含 20% 冗余）</h3>
+          <h3 id="title-bytes">所需字节（含 20% 冗余）</h3>
           <div class="value" id="bytes">--</div>
           <div class="sub" id="bytesSub">等待输入</div>
         </div>
@@ -349,17 +349,156 @@
       <p class="note" id="note">请填写参数数量与位宽。</p>
 
       <div class="help">
-        <h3>如何确定量化位宽 Q（bit）</h3>
+        <h3 id="help-title">如何确定量化位宽 Q（bit）</h3>
         <ul>
-          <li><strong>看文件名</strong>：GGUF/GGML 常见后缀 q4_0/q4_K=4bit，q5_1=5bit，q6_K=6bit，q8_0=8bit；f16=16bit，f32=32bit。</li>
-          <li><strong>量化方案映射</strong>：GPTQ-4bit/8bit → 4/8；AWQ W4A16 → 权重 4bit；EXL2 标注 4.0bpw/5.0bpw → 4/5；“w16”/“f16” → 16。</li>
-          <li><strong>在 LM Studio/下载目录查看</strong>：打开模型文件所在目录，直接看文件名后缀即可确认 Q。</li>
-          <li><strong>看模型页说明</strong>：Hugging Face/GitHub 发布页 README 通常会写明量化格式（如 Q4_K_M、GPTQ-4bit）。</li>
-          <li><strong>选用哪个文件就填哪个位宽</strong>：加载列表里选择的量化文件，对应位宽就是 Q。</li>
+          <li id="help-1"><strong>看文件名</strong>：GGUF/GGML 常见后缀 q4_0/q4_K=4bit，q5_1=5bit，q6_K=6bit，q8_0=8bit；f16=16bit，f32=32bit。</li>
+          <li id="help-2"><strong>量化方案映射</strong>：GPTQ-4bit/8bit → 4/8；AWQ W4A16 → 权重 4bit；EXL2 标注 4.0bpw/5.0bpw → 4/5；“w16”/“f16” → 16。</li>
+          <li id="help-3"><strong>在 LM Studio/下载目录查看</strong>：打开模型文件所在目录，直接看文件名后缀即可确认 Q。</li>
+          <li id="help-4"><strong>看模型页说明</strong>：Hugging Face/GitHub 发布页 README 通常会写明量化格式（如 Q4_K_M、GPTQ-4bit）。</li>
+          <li id="help-5"><strong>选用哪个文件就填哪个位宽</strong>：加载列表里选择的量化文件，对应位宽就是 Q。</li>
         </ul>
       </div>
     </div>
   </div>
+
+  <script>
+    (function() {
+      var translations = {
+        en: {
+          title: 'Large Model VRAM Estimator',
+          badge: 'VRAM estimate · quant helper',
+          heading: 'Large Model VRAM Calculator',
+          lead: 'Estimate GPU memory from parameter count and quantization width with 20% overhead included.',
+          paramsLabel: 'Parameter count P',
+          paramsPlaceholder: 'e.g. 7 or 70',
+          unitBillion: 'Billion (10^9)',
+          unitAbsolute: 'Absolute count',
+          quantLabel: 'Quantization width Q (bit)',
+          opt4: '4 bit',
+          opt8: '8 bit',
+          opt16: '16 bit',
+          opt32: '32 bit (full precision)',
+          optCustom: 'Custom',
+          customPlaceholder: 'Custom width, e.g. 6',
+          formulaLabel: 'Formula (includes 20% overhead)',
+          formulaText: 'M = (P × 4B) / (32 / Q) × 1.2',
+          formulaNote: 'M in GB; P is parameter count; Q is load bit-width; 4B means 4 bytes per parameter.',
+          button: 'Calculate now',
+          titleGb: 'VRAM (GB, decimal)',
+          titleGib: 'VRAM (GiB, binary)',
+          titleBytes: 'Bytes needed (incl. 20% overhead)',
+          subWaiting: 'Waiting for input',
+          noteDefault: 'Fill in parameter count and bit width.',
+          noteInvalidP: 'Enter a valid parameter count (e.g., 7 for 7B).',
+          noteInvalidQ: 'Select or enter a valid bit width (bit).',
+          noteComputed: function(P, unitLabel, Q, locale) { return 'Computed with P=' + P.toLocaleString(locale, { maximumFractionDigits: 0 }) + ' (' + unitLabel + '), Q=' + Q + ' bit.'; },
+          subGb: 'Decimal GB (1 GB = 10^9 bytes)',
+          subGib: 'Binary GiB (1 GiB = 1024^3 bytes)',
+          subBytes: 'Total bytes including 20% overhead',
+          helpTitle: 'How to decide quantization width Q (bit)',
+          help1: '<strong>Check file name</strong>: GGUF/GGML suffix q4_0/q4_K=4bit, q5_1=5bit, q6_K=6bit, q8_0=8bit; f16=16bit, f32=32bit.',
+          help2: '<strong>Scheme mapping</strong>: GPTQ-4bit/8bit → 4/8; AWQ W4A16 → weight 4bit; EXL2 4.0bpw/5.0bpw → 4/5; “w16”/“f16” → 16.',
+          help3: '<strong>Look in LM Studio/download folder</strong>: Open the model folder and read the file suffix to confirm Q.',
+          help4: '<strong>Read the model page</strong>: Hugging Face/GitHub README usually lists the quant format (e.g., Q4_K_M, GPTQ-4bit).',
+          help5: '<strong>Use the file you load</strong>: The quant file you pick in the loader determines Q.'
+        },
+        zh: {
+          title: '大模型显存计算器',
+          badge: '显存估算 · 量化助手',
+          heading: '大模型显存计算器',
+          lead: '根据参数量与量化位宽快速估算 GPU 占用，包含 20% 额外开销。',
+          paramsLabel: '参数数量 P',
+          paramsPlaceholder: '例如 7 或 70',
+          unitBillion: '十亿（B，10^9）',
+          unitAbsolute: '直接输入个数',
+          quantLabel: '量化位宽 Q（bit）',
+          opt4: '4 bit',
+          opt8: '8 bit',
+          opt16: '16 bit',
+          opt32: '32 bit（全精度）',
+          optCustom: '自定义',
+          customPlaceholder: '自定义位宽，例如 6',
+          formulaLabel: '公式（已含 20% 冗余）',
+          formulaText: 'M = (P × 4B) / (32 / Q) × 1.2',
+          formulaNote: 'M 以 GB 表示；P 为参数数量；Q 为加载位宽（bit）；4B 表示每个参数 4 字节。',
+          button: '立即计算',
+          titleGb: '显存占用（GB，十进制）',
+          titleGib: '显存占用（GiB，1024 进制）',
+          titleBytes: '所需字节（含 20% 冗余）',
+          subWaiting: '等待输入',
+          noteDefault: '请填写参数数量与位宽。',
+          noteInvalidP: '请输入有效的参数数量（可输入 7 表示 7B）。',
+          noteInvalidQ: '请选择或填写有效的位宽（bit）。',
+          noteComputed: function(P, unitLabel, Q, locale) { return '已按 P=' + P.toLocaleString(locale, { maximumFractionDigits: 0 }) + '（' + unitLabel + '）、Q=' + Q + ' bit 计算。'; },
+          subGb: '十进制 GB（1 GB = 10^9 字节）',
+          subGib: '二进制 GiB（1 GiB = 1024^3 字节）',
+          subBytes: '包含公式中 20% 冗余的总字节数',
+          helpTitle: '如何确定量化位宽 Q（bit）',
+          help1: '<strong>看文件名</strong>：GGUF/GGML 常见后缀 q4_0/q4_K=4bit，q5_1=5bit，q6_K=6bit，q8_0=8bit；f16=16bit，f32=32bit。',
+          help2: '<strong>量化方案映射</strong>：GPTQ-4bit/8bit → 4/8；AWQ W4A16 → 权重 4bit；EXL2 标注 4.0bpw/5.0bpw → 4/5；“w16”/“f16” → 16。',
+          help3: '<strong>在 LM Studio/下载目录查看</strong>：打开模型文件所在目录，直接看文件名后缀即可确认 Q。',
+          help4: '<strong>看模型页说明</strong>：Hugging Face/GitHub 发布页 README 通常会写明量化格式（如 Q4_K_M、GPTQ-4bit）。',
+          help5: '<strong>选用哪个文件就填哪个位宽</strong>：加载列表里选择的量化文件，对应位宽就是 Q。'
+        }
+      };
+
+      var userLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      var selectedLang = userLang.indexOf('zh') === 0 ? 'zh' : 'en';
+      var t = translations[selectedLang];
+      var locale = selectedLang === 'zh' ? 'zh-CN' : 'en-US';
+
+      document.documentElement.lang = selectedLang === 'zh' ? 'zh-Hans' : 'en';
+      document.title = t.title;
+
+      var setText = function(id, value) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = value;
+      };
+      var setHTML = function(id, value) {
+        var el = document.getElementById(id);
+        if (el) el.innerHTML = value;
+      };
+      var setPlaceholder = function(id, value) {
+        var el = document.getElementById(id);
+        if (el) el.placeholder = value;
+      };
+
+      setText('badge-text', t.badge);
+      setText('heading-text', t.heading);
+      setText('lead-text', t.lead);
+      setText('params-label', t.paramsLabel);
+      setPlaceholder('params', t.paramsPlaceholder);
+      setText('unit-billion', t.unitBillion);
+      setText('unit-absolute', t.unitAbsolute);
+      setText('quant-label', t.quantLabel);
+      setText('opt-4', t.opt4);
+      setText('opt-8', t.opt8);
+      setText('opt-16', t.opt16);
+      setText('opt-32', t.opt32);
+      setText('opt-custom', t.optCustom);
+      setPlaceholder('customBits', t.customPlaceholder);
+      setText('formula-label', t.formulaLabel);
+      setText('formula-text', t.formulaText);
+      setText('formula-note', t.formulaNote);
+      setText('calc', t.button);
+      setText('title-gb', t.titleGb);
+      setText('title-gib', t.titleGib);
+      setText('title-bytes', t.titleBytes);
+      setText('gbSub', t.subWaiting);
+      setText('gibSub', t.subWaiting);
+      setText('bytesSub', t.subWaiting);
+      setText('note', t.noteDefault);
+      setText('help-title', t.helpTitle);
+      setHTML('help-1', t.help1);
+      setHTML('help-2', t.help2);
+      setHTML('help-3', t.help3);
+      setHTML('help-4', t.help4);
+      setHTML('help-5', t.help5);
+
+      window.__llmLocale = locale;
+      window.__llmStrings = t;
+    })();
+  </script>
 
   <script>
     const paramsInput = document.getElementById('params');
@@ -393,8 +532,11 @@
       return parseFloat(selected);
     }
 
+    const locale = window.__llmLocale || 'zh-CN';
+    const strings = window.__llmStrings || {};
+
     function formatNumber(num, fraction = 2) {
-      return num.toLocaleString('zh-CN', { maximumFractionDigits: fraction, minimumFractionDigits: fraction });
+      return num.toLocaleString(locale, { maximumFractionDigits: fraction, minimumFractionDigits: fraction });
     }
 
     function setActivePill() {
@@ -416,11 +558,11 @@
       const Q = getBits();
 
       if (P === null) {
-        noteEl.textContent = '请输入有效的参数数量（可输入 7 表示 7B）。';
+        noteEl.textContent = strings.noteInvalidP || '请输入有效的参数数量（可输入 7 表示 7B）。';
         return;
       }
       if (Q === null) {
-        noteEl.textContent = '请选择或填写有效的位宽（bit）。';
+        noteEl.textContent = strings.noteInvalidQ || '请选择或填写有效的位宽（bit）。';
         return;
       }
 
@@ -431,14 +573,18 @@
 
       gbEl.textContent = formatNumber(gb, 3);
       gibEl.textContent = formatNumber(gib, 3);
-      bytesEl.textContent = bytes.toLocaleString('zh-CN');
+      bytesEl.textContent = bytes.toLocaleString(locale);
 
-      gbSub.textContent = '十进制 GB（1 GB = 10^9 字节）';
-      gibSub.textContent = '二进制 GiB（1 GiB = 1024^3 字节）';
-      bytesSub.textContent = '包含公式中 20% 冗余的总字节数';
+      gbSub.textContent = strings.subGb || '十进制 GB（1 GB = 10^9 字节）';
+      gibSub.textContent = strings.subGib || '二进制 GiB（1 GiB = 1024^3 字节）';
+      bytesSub.textContent = strings.subBytes || '包含公式中 20% 冗余的总字节数';
 
-      const unitLabel = Array.from(unitRadios).find(r => r.checked)?.value === 'billion' ? 'B（十亿）' : '个参数';
-      noteEl.textContent = `已按 P=${formatNumber(P, 0)}（${unitLabel}）、Q=${Q} bit 计算。`;
+      const unitLabel = Array.from(unitRadios).find(r => r.checked)?.value === 'billion' ? (strings.unitBillion || 'Billion') : (strings.unitAbsolute || 'Absolute');
+      if (typeof strings.noteComputed === 'function') {
+        noteEl.textContent = strings.noteComputed(P, unitLabel, Q, locale);
+      } else {
+        noteEl.textContent = `P=${formatNumber(P, 0)} (${unitLabel}), Q=${Q} bit`;
+      }
     }
 
     quantSelect.addEventListener('change', () => { toggleCustomBits(); calculate(); });
@@ -449,6 +595,7 @@
 
     // 初始样式同步
     setActivePill();
+    noteEl.textContent = strings.noteDefault || noteEl.textContent;
   </script>
 </body>
 </html>

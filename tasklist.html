@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="en">
 <head>
 	<meta charset="utf-8" />
-	<title>运行查询 v1.3.6</title>
+	<title>Process Lookup</title>
 	<link rel="icon" type="image/x-icon" href="./img/favicon.ico" />
 	<style>
 		@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap');
@@ -215,40 +215,119 @@
 		<div class="card">
 			<header>
 				<div class="title">
-					<div class="badge">tasklist /svc · ps -aux 查询</div>
-					<h1>杀软 / 高危进程查询</h1>
-					<p class="lead">粘贴 Windows tasklist 或 Linux ps -aux 输出，快速匹配常见杀软与可利用进程。</p>
+					<div id="badge-text" class="badge">tasklist /svc · ps -aux 查询</div>
+					<h1 id="heading-text">杀软 / 高危进程查询</h1>
+					<p id="lead-text" class="lead">粘贴 Windows tasklist 或 Linux ps -aux 输出，快速匹配常见杀软与可利用进程。</p>
 				</div>
 			</header>
 
 			<div class="grid">
 				<div>
-					<label for="content">粘贴进程列表</label>
+					<label id="content-label" for="content">粘贴进程列表</label>
 					<textarea id="content" placeholder="将 tasklist /svc 或 ps -aux 输出粘贴到这里"></textarea>
 					<div style="margin-top: 12px;">
 						<button id="search" type="button" onclick="getAVName();">立即查询</button>
 					</div>
-					<p class="note">提示：Windows 输出需包含 .exe 名称；Linux 输出会按命令包含关系匹配。</p>
+					<p id="note-text" class="note">提示：Windows 输出需包含 .exe 名称；Linux 输出会按命令包含关系匹配。</p>
 				</div>
 
 				<div>
 					<div class="results">
 						<div class="result-card">
-							<h3>杀软结果</h3>
+							<h3 id="result1-title">杀软结果</h3>
 							<textarea id="result1" placeholder="匹配到的杀软进程会显示在这里" readonly></textarea>
 						</div>
 						<div class="result-card">
-							<h3>其他软件结果</h3>
+							<h3 id="result2-title">其他软件结果</h3>
 							<textarea id="result2" placeholder="匹配到的常见软件 / 高危进程" readonly></textarea>
 						</div>
 						<div class="result-card">
-							<h3>Linux 进程结果</h3>
+							<h3 id="result3-title">Linux 进程结果</h3>
 							<textarea id="result3" placeholder="匹配到的 Linux 杀软或可利用进程" readonly></textarea>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
+		<script>
+		(function() {
+			var translations = {
+				en: {
+					title: 'Process Lookup',
+					badge: 'tasklist /svc · ps -aux lookup',
+					heading: 'AV / High-Risk Process Lookup',
+					lead: 'Paste Windows tasklist or Linux ps -aux output to quickly match common AV and exploitable processes.',
+					label: 'Paste process list',
+					placeholderInput: 'Paste tasklist /svc or ps -aux output here',
+					button: 'Search now',
+					note: 'Tip: Windows output must include .exe names; Linux matching is by command substring.',
+					result1: 'AV matches',
+					result1Placeholder: 'Detected AV processes will appear here',
+					result2: 'Other software matches',
+					result2Placeholder: 'Common software / high-risk processes',
+					result3: 'Linux process matches',
+					result3Placeholder: 'Linux AV or exploitable processes'
+				},
+				zh: {
+					title: '运行查询',
+					badge: 'tasklist /svc · ps -aux 查询',
+					heading: '杀软 / 高危进程查询',
+					lead: '粘贴 Windows tasklist 或 Linux ps -aux 输出，快速匹配常见杀软与可利用进程。',
+					label: '粘贴进程列表',
+					placeholderInput: '将 tasklist /svc 或 ps -aux 输出粘贴到这里',
+					button: '立即查询',
+					note: '提示：Windows 输出需包含 .exe 名称；Linux 输出会按命令包含关系匹配。',
+					result1: '杀软结果',
+					result1Placeholder: '匹配到的杀软进程会显示在这里',
+					result2: '其他软件结果',
+					result2Placeholder: '匹配到的常见软件 / 高危进程',
+					result3: 'Linux 进程结果',
+					result3Placeholder: '匹配到的 Linux 杀软或可利用进程'
+				}
+			};
+
+			var userLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+			var selectedLang = userLang.indexOf('zh') === 0 ? 'zh' : 'en';
+			var t = translations[selectedLang];
+
+			document.documentElement.lang = selectedLang === 'zh' ? 'zh-Hans' : 'en';
+			document.title = t.title;
+
+			var setText = function(id, value) {
+				var el = document.getElementById(id);
+				if (el) {
+					el.textContent = value;
+				}
+			};
+
+			var setPlaceholder = function(id, value) {
+				var el = document.getElementById(id);
+				if (el) {
+					el.placeholder = value;
+				}
+			};
+
+			setText('badge-text', t.badge);
+			setText('heading-text', t.heading);
+			setText('lead-text', t.lead);
+			setText('content-label', t.label);
+			setPlaceholder('content', t.placeholderInput);
+			setText('note-text', t.note);
+
+			var searchBtn = document.getElementById('search');
+			if (searchBtn) {
+				searchBtn.textContent = t.button;
+			}
+
+			setText('result1-title', t.result1);
+			setPlaceholder('result1', t.result1Placeholder);
+			setText('result2-title', t.result2);
+			setPlaceholder('result2', t.result2Placeholder);
+			setText('result3-title', t.result3);
+			setPlaceholder('result3', t.result3Placeholder);
+		})();
+		</script>
+
 	</div>
 
 <script src="./js/avlist.js"></script>
