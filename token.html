@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Token 成本计算器</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;600&display=swap');
+
+    :root {
+      --bg-1: #0a1718;
+      --bg-2: #0e2426;
+      --accent: #1ec6a3;
+      --accent-2: #f1a208;
+      --card: rgba(16, 35, 38, 0.9);
+      --card-2: rgba(255, 255, 255, 0.02);
+      --text: #e8f1ef;
+      --muted: #90a4a6;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.35);
+      --glow: 0 0 30px rgba(30, 198, 163, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(30, 198, 163, 0.7) rgba(255, 255, 255, 0.06);
+    }
+
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 12px; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, rgba(30, 198, 163, 0.85), rgba(25, 168, 133, 0.9));
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 16px rgba(30, 198, 163, 0.35);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: linear-gradient(135deg, rgba(30, 198, 163, 1), rgba(25, 168, 133, 1)); }
+    ::-webkit-scrollbar-corner { background: transparent; }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Noto Sans SC', 'Space Grotesk', sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(30, 198, 163, 0.08), transparent 35%),
+        radial-gradient(circle at 80% 0%, rgba(241, 162, 8, 0.07), transparent 35%),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 36px 18px 36px;
+    }
+
+    .page { width: min(60%, 100%); position: relative; }
+
+    .glow-ring {
+      position: absolute;
+      inset: -80px;
+      background: radial-gradient(circle, rgba(30, 198, 163, 0.12), transparent 45%);
+      filter: blur(40px);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      z-index: 1;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 99px;
+      background: rgba(30, 198, 163, 0.12);
+      border: 1px solid rgba(30, 198, 163, 0.35);
+      color: var(--text);
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    h1 { font-size: clamp(26px, 4vw, 34px); font-weight: 600; letter-spacing: 0.4px; }
+    p.lead { color: var(--muted); margin-top: 6px; line-height: 1.6; }
+
+    .section-title { font-size: 18px; font-weight: 600; letter-spacing: 0.3px; }
+    .eyebrow { color: var(--accent); font-size: 13px; letter-spacing: 0.4px; text-transform: uppercase; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 18px;
+    }
+
+    label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 14px; }
+
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      font-size: 15px;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+
+    select { font-weight: 600; background: rgba(255, 255, 255, 0.08); }
+    select option { background: #0f2023; color: var(--text); font-weight: 600; }
+    select option:checked, select option:hover { background: rgba(30, 198, 163, 0.25); color: #fff; }
+
+    input:focus, select:focus, textarea:focus { outline: 1px solid rgba(30, 198, 163, 0.65); box-shadow: var(--glow); }
+
+    .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .row.stretch > * { flex: 1 1 0; }
+
+    .pill-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .pill-option input { width: auto; margin: 0; cursor: pointer; }
+    .pill-option:hover { border-color: rgba(30, 198, 163, 0.45); background: rgba(30, 198, 163, 0.06); }
+    .pill-option.active { border-color: rgba(30, 198, 163, 0.9); box-shadow: var(--glow); }
+
+    button {
+      background: linear-gradient(135deg, #1ec6a3, #19a885);
+      border: none;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover { transform: translateY(-1px); box-shadow: 0 12px 35px rgba(30, 198, 163, 0.35); }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      background: var(--card-2);
+    }
+
+    .panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .hint { color: var(--muted); font-size: 13px; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .stat {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .stat h4 { font-size: 13px; color: var(--muted); font-weight: 500; margin-bottom: 6px; }
+    .value { font-size: 24px; font-weight: 600; color: var(--accent); }
+    .sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+    .table-like { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-top: 10px; }
+    .table-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr; padding: 10px 12px; background: rgba(255, 255, 255, 0.02); }
+    .table-row + .table-row { border-top: 1px solid var(--border); }
+    .table-row.header { background: rgba(255, 255, 255, 0.05); color: var(--muted); font-weight: 600; font-size: 13px; }
+
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 99px; background: rgba(30, 198, 163, 0.12); border: 1px solid rgba(30, 198, 163, 0.35); color: var(--text); font-weight: 600; font-size: 13px; }
+
+    .note { margin-top: 14px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+
+    .backlog { list-style: disc; padding-left: 18px; margin-top: 6px; line-height: 1.55; }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    @media (max-width: 820px) { .two-col { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) {
+      body { padding: 24px 16px 60px; }
+      .row { flex-direction: column; align-items: stretch; }
+      header { flex-direction: column; align-items: flex-start; }
+      .table-row { grid-template-columns: 1fr 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="glow-ring" aria-hidden="true"></div>
+    <div class="card">
+      <header>
+        <div>
+          <div class="badge" data-i18n="badge">成本控制 · 即时估价</div>
+          <h1 data-i18n="title">AI Token 成本计算器</h1>
+          <p class="lead" data-i18n="lead">参考显存计算器的视觉风格，面向 OpenAI / Claude / 本地 Llama 的成本估算，一站式控制每一分钱。</p>
+        </div>
+        <button id="langToggle" type="button" style="max-width: 140px; padding: 10px 14px;">
+          <span data-i18n="langToggle">中 / EN</span>
+        </button>
+      </header>
+
+      <div class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="eyebrow" data-i18n="tokenEyebrow">Token 实时计价器</div>
+              <div class="section-title" data-i18n="tokenTitle">输入对话，立刻看到要花多少钱</div>
+            </div>
+            <span class="hint" data-i18n="tokenHint">默认价格仅供参考，可自定义</span>
+          </div>
+
+          <label for="inputText" data-i18n="inputLabel">原始对话 / 日志</label>
+          <textarea id="inputText" data-i18n-placeholder="inputPlaceholder" placeholder="粘贴你要发送到 API 的内容，支持多轮对话或长文本。"></textarea>
+
+          <div class="two-col" style="margin-top: 10px;">
+            <div>
+              <label for="modelSelect" data-i18n="modelLabel">选择模型</label>
+              <div class="row" style="margin-bottom: 8px;">
+                <input id="modelFilter" type="text" data-i18n-placeholder="modelFilterPlaceholder" placeholder="搜索模型或厂商" />
+              </div>
+              <select id="modelSelect"></select>
+              <div class="table-like" style="margin-top: 10px;">
+                <div class="table-row header">
+                  <div data-i18n="pricingHeader">计价项（每 1K token）</div><div data-i18n="pricingIn">输入</div><div data-i18n="pricingOut">输出</div>
+                </div>
+                <div class="table-row">
+                  <div data-i18n="currentPrice">当前模型价格</div><div id="priceIn">--</div><div id="priceOut">--</div>
+                </div>
+                <div class="table-row">
+                  <div data-i18n="customPrice">自定义（$）</div>
+                  <div><input id="customIn" type="number" min="0" step="0.0001" data-i18n-placeholder="customIn" placeholder="输入价" /></div>
+                  <div><input id="customOut" type="number" min="0" step="0.0001" data-i18n-placeholder="customOut" placeholder="输出价" /></div>
+                </div>
+              </div>
+
+            </div>
+            <div>
+              <label for="replyTokens" data-i18n="replyLabel">预计回复 token（可粗估）</label>
+              <input id="replyTokens" type="number" min="0" step="10" value="200" />
+              <div class="note" style="margin-top: 8px;" data-i18n="replyNote">提示：若不确定，把回复长度乘以 4 近似 token 数，或直接填 0 只看提示词成本。</div>
+            </div>
+          </div>
+
+          <div class="stat-grid" aria-live="polite" aria-atomic="true">
+            <div class="stat">
+              <h4 data-i18n="promptTokensLabel">提示词 token</h4>
+              <div class="value" id="promptTokens">--</div>
+              <div class="sub" id="promptChars" data-i18n="promptWaiting">等待输入</div>
+            </div>
+            <div class="stat">
+              <h4 data-i18n="completionTokensLabel">回复 token</h4>
+              <div class="value" id="completionTokens">--</div>
+              <div class="sub" data-i18n="completionFrom">来自上方“预计回复 token”</div>
+            </div>
+            <div class="stat">
+              <h4 data-i18n="totalTokensLabel">总 token</h4>
+              <div class="value" id="totalTokens">--</div>
+              <div class="sub" data-i18n="totalSub">提示词 + 回复</div>
+            </div>
+            <div class="stat">
+              <h4 data-i18n="totalCostLabel">预估费用（$）</h4>
+              <div class="value" id="totalCost">--</div>
+              <div class="sub" id="costBreakdown" data-i18n="costBreakdownDefault">包含输入与输出成本</div>
+            </div>
+          </div>
+        </div>
+
+
+    </div>
+  </div>
+
+  <script>
+    // 简易多语言
+    const i18n = {
+      zh: {
+        badge: '成本控制 · 即时估价',
+        title: 'AI Token 成本计算器',
+        lead: '参考显存计算器的视觉风格，面向 OpenAI / Claude / 本地 Llama 的成本估算，一站式控制每一分钱。',
+        langToggle: '中 / EN',
+        tokenEyebrow: 'Token 实时计价器',
+        tokenTitle: '输入对话，立刻看到要花多少钱',
+        tokenHint: '默认价格仅供参考，可自定义',
+        inputLabel: '原始对话 / 日志',
+        inputPlaceholder: '粘贴你要发送到 API 的内容，支持多轮对话或长文本。',
+        modelLabel: '选择模型',
+        pricingHeader: '计价项（每 1K token）',
+        pricingIn: '输入',
+        pricingOut: '输出',
+        currentPrice: '当前模型价格',
+        customPrice: '自定义（$）',
+        customIn: '输入价',
+        customOut: '输出价',
+        replyLabel: '预计回复 token（可粗估）',
+        replyNote: '提示：若不确定，把回复长度乘以 4 近似 token 数，或直接填 0 只看提示词成本。',
+        promptTokensLabel: '提示词 token',
+        completionTokensLabel: '回复 token',
+        totalTokensLabel: '总 token',
+        totalCostLabel: '预估费用（$）',
+        promptWaiting: '等待输入',
+        completionFrom: '来自上方“预计回复 token”',
+        totalSub: '提示词 + 回复',
+        costBreakdownDefault: '包含输入与输出成本',
+        modelFilterPlaceholder: '搜索模型或厂商',
+        noMatch: '无匹配模型',
+      },
+      en: {
+        badge: 'Cost Control · Instant Quote',
+        title: 'AI Billing Estimator & Optimizer',
+        lead: 'Same neon-glass look, focused on OpenAI / Claude / local Llama cost estimation.',
+        langToggle: 'EN / 中',
+        tokenEyebrow: 'Token Live Estimator',
+        tokenTitle: 'Paste a conversation to see the bill',
+        tokenHint: 'Default prices are examples; override anytime.',
+        inputLabel: 'Raw conversation / log',
+        inputPlaceholder: 'Paste the content you will send to the API. Supports multi-turn or long text.',
+        modelLabel: 'Model',
+        pricingHeader: 'Pricing (per 1K tokens)',
+        pricingIn: 'Input',
+        pricingOut: 'Output',
+        currentPrice: 'Current model price',
+        customPrice: 'Custom ($)',
+        customIn: 'Input price',
+        customOut: 'Output price',
+        replyLabel: 'Estimated reply tokens (rough)',
+        replyNote: 'Tip: length × 4 ≈ tokens; fill 0 if you only care about the prompt cost.',
+        promptTokensLabel: 'Prompt tokens',
+        completionTokensLabel: 'Reply tokens',
+        totalTokensLabel: 'Total tokens',
+        totalCostLabel: 'Estimated cost ($)',
+        promptWaiting: 'Waiting for input',
+        completionFrom: 'From “Estimated reply tokens” above',
+        totalSub: 'Prompt + Reply',
+        costBreakdownDefault: 'Includes input and output cost',
+        modelFilterPlaceholder: 'Search model or vendor',
+        noMatch: 'No matching model',
+      }
+    };
+
+    const langToggle = document.getElementById('langToggle');
+    let currentLang = (navigator.language || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+
+    function applyLocale(locale) {
+      const dict = i18n[locale] || i18n.zh;
+      document.documentElement.lang = locale === 'zh' ? 'zh-Hans' : 'en';
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (dict[key]) el.placeholder = dict[key];
+      });
+      // Update dynamic default copy
+      costBreakdownEl.textContent = dict.costBreakdownDefault;
+      langToggle.setAttribute('aria-label', dict.langToggle);
+    }
+
+    // 内嵌备用模型（用于 file:// 无法 fetch 时的兜底）
+    const embeddedModels = [
+      { id: 'gpt-4o', name: 'OpenAI GPT-4o', promptPrice: 0.005, completionPrice: 0.015, quality: 9.5, speed: 7.5 },
+      { id: 'gpt-4o-mini', name: 'OpenAI GPT-4o mini', promptPrice: 0.00015, completionPrice: 0.0006, quality: 7.6, speed: 9.0 },
+      { id: 'gpt-3.5-turbo', name: 'OpenAI GPT-3.5 Turbo', promptPrice: 0.0005, completionPrice: 0.0015, quality: 7.0, speed: 8.8 },
+      { id: 'claude-sonnet', name: 'Claude 3.5 Sonnet', promptPrice: 0.003, completionPrice: 0.015, quality: 9.3, speed: 8.2 },
+      { id: 'claude-haiku', name: 'Claude 3 Haiku', promptPrice: 0.00025, completionPrice: 0.00125, quality: 7.8, speed: 9.2 },
+      { id: 'mistral-large', name: 'Mistral Large', promptPrice: 0.002, completionPrice: 0.006, quality: 8.5, speed: 8.4 },
+      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', promptPrice: 0.0035, completionPrice: 0.0105, quality: 8.9, speed: 8.0 },
+      { id: 'local-llama', name: '本地 Llama / 自托管', promptPrice: 0, completionPrice: 0, quality: 6.5, speed: 6.5 }
+    ];
+    function isValidModel(m) {
+      return m && m.id && m.name && Number.isFinite(m.promptPrice) && Number.isFinite(m.completionPrice);
+    }
+
+    async function fetchDefaultModels() {
+      try {
+        const res = await fetch('models.json', { cache: 'no-cache' });
+        if (!res.ok) throw new Error('fetch failed');
+        const data = await res.json();
+        if (Array.isArray(data) && data.every(isValidModel)) return data;
+      } catch (e) {
+        console.warn('Failed to load models.json', e);
+      }
+      // file:// 或 CORS 失败时使用内嵌兜底
+      return [...embeddedModels];
+    }
+
+    let models = [];
+
+    function applyModelList(list) {
+      if (!Array.isArray(list) || !list.length) return;
+      const filtered = list.filter(isValidModel);
+      if (!filtered.length) return;
+      models = filtered;
+      initModels();
+      calcCost();
+    }
+
+    function renderModelSelect(filter = '') {
+      const current = modelSelect.value;
+      const q = (filter || '').trim().toLowerCase();
+      const list = models.filter(m => !q || m.name.toLowerCase().includes(q) || m.id.toLowerCase().includes(q));
+      if (!list.length) {
+        modelSelect.innerHTML = '<option disabled data-i18n="noMatch">无匹配模型</option>';
+        return;
+      }
+      modelSelect.innerHTML = list.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+      const target = list.find(m => m.id === current)?.id || list[0]?.id;
+      if (target) modelSelect.value = target;
+      renderPriceTable();
+    }
+
+    const modelFilter = document.getElementById('modelFilter');
+
+    // DOM refs
+    const modelSelect = document.getElementById('modelSelect');
+    const inputText = document.getElementById('inputText');
+    const replyTokensInput = document.getElementById('replyTokens');
+    const promptTokensEl = document.getElementById('promptTokens');
+    const promptCharsEl = document.getElementById('promptChars');
+    const completionTokensEl = document.getElementById('completionTokens');
+    const totalTokensEl = document.getElementById('totalTokens');
+    const totalCostEl = document.getElementById('totalCost');
+    const costBreakdownEl = document.getElementById('costBreakdown');
+    const priceInEl = document.getElementById('priceIn');
+    const priceOutEl = document.getElementById('priceOut');
+    const customIn = document.getElementById('customIn');
+    const customOut = document.getElementById('customOut');
+
+    // Helpers
+    function format(num, digits = 2) {
+      if (Number.isNaN(num) || !Number.isFinite(num)) return '--';
+      return num.toLocaleString('zh-CN', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    }
+
+    function estimateTokens(text) {
+      if (!text || !text.trim()) return 0;
+      const clean = text.replace(/\s+/g, ' ').trim();
+      // 粗略估算：平均 1 token ≈ 1.8 中文字符或 0.75 英文单词
+      const charTokens = clean.length / 1.8;
+      const wordTokens = clean.split(/\s+/).length * 0.75;
+      return Math.ceil((charTokens + wordTokens) / 2);
+    }
+
+    function activeModel() {
+      const id = modelSelect.value;
+      return models.find(m => m.id === id) || models[0] || null;
+    }
+
+    function getPrices() {
+      const model = activeModel();
+      const inVal = parseFloat(customIn.value);
+      const outVal = parseFloat(customOut.value);
+      if (!model) {
+        return { promptPrice: Number.isFinite(inVal) ? inVal : 0, completionPrice: Number.isFinite(outVal) ? outVal : 0 };
+      }
+      return {
+        promptPrice: Number.isFinite(inVal) ? inVal : model.promptPrice,
+        completionPrice: Number.isFinite(outVal) ? outVal : model.completionPrice,
+      };
+    }
+
+    function renderPriceTable() {
+      const model = activeModel();
+      if (!model) {
+        priceInEl.textContent = '--';
+        priceOutEl.textContent = '--';
+        return;
+      }
+      priceInEl.textContent = `$${format(model.promptPrice, 4)}`;
+      priceOutEl.textContent = `$${format(model.completionPrice, 4)}`;
+    }
+
+    function calcCost() {
+      const model = activeModel();
+      const promptTokens = estimateTokens(inputText.value);
+      const completionTokens = Math.max(0, parseInt(replyTokensInput.value, 10) || 0);
+      const totalTokens = promptTokens + completionTokens;
+      const { promptPrice, completionPrice } = getPrices();
+      const promptCost = (promptTokens / 1000) * promptPrice;
+      const completionCost = (completionTokens / 1000) * completionPrice;
+      const totalCost = promptCost + completionCost;
+
+      promptTokensEl.textContent = promptTokens ? promptTokens : '--';
+      promptCharsEl.textContent = inputText.value.length ? `${inputText.value.length} 字符估算` : '等待输入';
+      completionTokensEl.textContent = completionTokens ? completionTokens : '--';
+      totalTokensEl.textContent = totalTokens ? totalTokens : '--';
+      totalCostEl.textContent = totalTokens && model ? `$${format(totalCost, 4)}` : '--';
+      costBreakdownEl.textContent = totalTokens && model ? `输入 $${format(promptCost, 4)} + 输出 $${format(completionCost, 4)}` : '包含输入与输出成本';
+    }
+
+    // Init
+    function initModels() {
+      renderModelSelect(modelFilter?.value || '');
+      calcCost();
+    }
+
+    modelSelect.addEventListener('change', () => { renderPriceTable(); calcCost(); });
+    [inputText, replyTokensInput, customIn, customOut].forEach(el => el.addEventListener('input', () => { calcCost(); }));
+    if (modelFilter) {
+      modelFilter.addEventListener('input', () => {
+        renderModelSelect(modelFilter.value);
+        calcCost();
+      });
+    }
+
+    langToggle.addEventListener('click', () => {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      applyLocale(currentLang);
+      calcCost();
+    });
+
+    async function bootstrap() {
+      applyLocale(currentLang);
+      const defaults = await fetchDefaultModels();
+      if (defaults.length) {
+        applyModelList(defaults);
+      }
+    }
+
+    bootstrap();
+  </script>
+</body>
+</html>

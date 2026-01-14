@@ -1,0 +1,66 @@
+[
+  {
+    "id": "gpt-4o",
+    "name": "OpenAI GPT-4o",
+    "promptPrice": 0.005,
+    "completionPrice": 0.015,
+    "quality": 9.5,
+    "speed": 7.5
+  },
+  {
+    "id": "gpt-4o-mini",
+    "name": "OpenAI GPT-4o mini",
+    "promptPrice": 0.00015,
+    "completionPrice": 0.0006,
+    "quality": 7.6,
+    "speed": 9.0
+  },
+  {
+    "id": "gpt-3.5-turbo",
+    "name": "OpenAI GPT-3.5 Turbo",
+    "promptPrice": 0.0005,
+    "completionPrice": 0.0015,
+    "quality": 7.0,
+    "speed": 8.8
+  },
+  {
+    "id": "claude-sonnet",
+    "name": "Claude 3.5 Sonnet",
+    "promptPrice": 0.003,
+    "completionPrice": 0.015,
+    "quality": 9.3,
+    "speed": 8.2
+  },
+  {
+    "id": "claude-haiku",
+    "name": "Claude 3 Haiku",
+    "promptPrice": 0.00025,
+    "completionPrice": 0.00125,
+    "quality": 7.8,
+    "speed": 9.2
+  },
+  {
+    "id": "mistral-large",
+    "name": "Mistral Large",
+    "promptPrice": 0.002,
+    "completionPrice": 0.006,
+    "quality": 8.5,
+    "speed": 8.4
+  },
+  {
+    "id": "gemini-1.5-pro",
+    "name": "Gemini 1.5 Pro",
+    "promptPrice": 0.0035,
+    "completionPrice": 0.0105,
+    "quality": 8.9,
+    "speed": 8.0
+  },
+  {
+    "id": "local-llama",
+    "name": "本地 Llama / 自托管",
+    "promptPrice": 0.0,
+    "completionPrice": 0.0,
+    "quality": 6.5,
+    "speed": 6.5
+  }
+]
